@@ -1,0 +1,141 @@
+{% extends 'base.html'%}
+
+{% block title %}
+    我的网站
+{% endblock %}
+
+{% load static %}
+{% load comment_tags %}
+{% block header_extends %}
+<link rel="stylesheet" href="{% static 'blog/blog.css' %}" >
+{% endblock %}
+
+{% block content %}
+    <p>
+
+    </p>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8 col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                            {% block blog_list_title %}博客列表(一共有 {{page_of_blogs.paginator.count}} 篇博客)
+                            {%endblock%}
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <ul style="list-style-type:none;">
+                                {% for blog in page_of_blogs.object_list %}
+                                <div class="blog">
+                                    <h3><a href="{% url 'blog_detail' blog.pk %}">{{ blog.title }}</h3></a>
+                                    <p class="blog-info">
+                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-tags-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" d="M3 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 7.586 1H3zm4 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                          <path d="M1 7.086a1 1 0 0 0 .293.707L8.75 15.25l-.043.043a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 0 7.586V3a1 1 0 0 1 1-1v5.086z"/>
+                                        </svg><a href="{% url 'blogs_with_type' blog.blog_type.pk%}">{{blog.blog_type}}</a>&nbsp;&nbsp;
+                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-alarm" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/>
+                                        </svg>{{blog.created_time|date:"Y-m-d"}}&nbsp;&nbsp;
+                                        阅读({{ blog.get_read_num }})&nbsp;&nbsp;
+                                        评论({% get_comment_count blog %})
+                                        </p>
+                                    <p> {{ blog.content|striptags|truncatechars:120 }} </p>
+
+                    </div>
+                                {% empty %}
+                                    <p>暂无博客，敬请期待</p>
+                                {% endfor %}
+                            </ul>
+                        </p>
+                    </div>
+                <div class = 'paginator'>
+                    <ul class="pagination">
+                    <li class="page-item">
+                        {% if page_of_blogs.has_previous %}
+                           <a class="page-link" href="?page={{page_of_blogs.previous_page_number}}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                           </a>
+                        {% else %}
+                            <span aria-hidden="true">&laquo;</span>
+                        {% endif %}
+                    </li>
+
+                    {#全部页码#}
+                    {% for page_num in page_range %}
+                        {% if page_num == page_of_blogs.number %}
+                            <li class="page-item active">
+                            <a class="page-link" href="?page={{ page_num }}">{{  page_num }}
+                            </a></li>
+                        {% else %}
+                            {% if page_num == '...' %}
+                            <li class="page-item">{{ page_num }}</li>
+                            {% else %}
+                            <li class="page-item">
+                            <a class="page-link" href="?page={{ page_num }}">{{  page_num }}
+                            </a></li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <li class="page-item">
+                    {% if page_of_blogs.has_next %}
+                       <a class="page-link" href="?page={{page_of_blogs.next_page_number}}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                       </a>
+                    {% else %}
+                        <span aria-hidden="true">&raquo;</span>
+                    {% endif %}
+                    </li>
+                    </ul>
+                    <p>
+                        共有{{page_of_blogs.paginator.count}}篇博客
+                        当前第{{page_of_blogs.number}}页，共{{page_of_blogs.paginator.num_pages}}页
+                    </p>
+                </div>
+                </div>
+            </div>
+
+            <div class="hidden-xs col-sm-4 col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        博客分类
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <ul class = "blog-types">
+                                {% for blog_type in blog_types %}
+                                    <li><a href="{%url 'blogs_with_type' blog_type.pk%}">{{blog_type.type_name}}
+                                        ({{blog_type.blog_count}})
+                                    </a></li>
+                                {% empty %}
+                                    <li>暂无分类</li>
+                                {% endfor %}
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+                <p>
+
+                </p>
+                <div class="card">
+                    <div class="card-header">归档日期</div>
+                    <div class="card-body">
+                        <ul style="list-style-type:none;">
+                            {% for blog_date,blog_count in blog_dates.items %}
+                                <li>
+                                    <a href="{%url 'blogs_with_date' blog_date.year blog_date.month%}">
+                                        {{blog_date|date:"Y年m月"}}({{blog_count}})
+                                    </a>
+                                </li>
+                            {%endfor%}
+                        </ul>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
